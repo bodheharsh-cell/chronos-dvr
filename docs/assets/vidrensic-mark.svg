@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Vidrensic mark</title>
+  <desc id="desc">A restrained forensic shield with a V-shaped signal path, evidence lens and three data nodes.</desc>
+  <defs>
+    <linearGradient id="signal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22D3EE"/>
+      <stop offset="1" stop-color="#38BDF8"/>
+    </linearGradient>
+    <linearGradient id="analysis" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#6366F1"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#07111C"/>
+  <path d="M256 54 407 110v126c0 101-61 174-151 222-90-48-151-121-151-222V110L256 54Z" fill="#0D1B2A" stroke="url(#signal)" stroke-width="18"/>
+  <path d="M170 175 256 354 342 175" fill="none" stroke="url(#analysis)" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="256" cy="204" r="55" fill="#07111C" stroke="#22D3EE" stroke-width="9"/>
+  <path d="m242 177 47 27-47 27Z" fill="#F8FAFC"/>
+  <path d="M256 272v44" stroke="#34D399" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="256" cy="328" r="7" fill="#34D399"/>
+  <circle cx="133" cy="332" r="9" fill="#34D399"/>
+  <circle cx="379" cy="332" r="9" fill="#34D399"/>
+  <path d="M133 332h34M345 332h34" stroke="#34D399" stroke-width="7" stroke-linecap="round" opacity=".9"/>
+</svg>

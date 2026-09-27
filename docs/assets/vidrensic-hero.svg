@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 380" role="img" aria-labelledby="title desc">
+  <title id="title">Vidrensic forensic evidence platform</title>
+  <desc id="desc">A dark technical hero with the Vidrensic shield and evidence-focused capability labels.</desc>
+  <defs>
+    <linearGradient id="signal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22D3EE"/>
+      <stop offset="1" stop-color="#38BDF8"/>
+    </linearGradient>
+    <linearGradient id="analysis" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#6366F1"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#7DD3FC" stroke-opacity=".055"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="380" rx="30" fill="#07111C"/>
+  <rect width="1200" height="380" rx="30" fill="url(#grid)"/>
+  <g transform="translate(72 66)">
+    <path d="M106 0 190 31v72c0 60-36 102-84 130-48-28-84-70-84-130V31L106 0Z" fill="#0D1B2A" stroke="url(#signal)" stroke-width="10"/>
+    <path d="M59 68 106 165 153 68" fill="none" stroke="url(#analysis)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="106" cy="87" r="31" fill="#07111C" stroke="#22D3EE" stroke-width="6"/>
+    <path d="m97 72 27 15-27 15Z" fill="#F8FAFC"/>
+    <circle cx="41" cy="145" r="5" fill="#34D399"/>
+    <circle cx="171" cy="145" r="5" fill="#34D399"/>
+  </g>
+  <g transform="translate(300 64)" font-family="Inter,Segoe UI,Arial,sans-serif">
+    <text x="0" y="70" fill="#F8FAFC" font-size="70" font-weight="800" letter-spacing="6">VIDRENSIC</text>
+    <text x="2" y="111" fill="#A5F3FC" font-size="22" font-weight="600" letter-spacing="1">FORENSIC-FIRST DVR / NVR EVIDENCE RECONSTRUCTION</text>
+    <rect x="2" y="140" width="760" height="4" rx="2" fill="url(#analysis)"/>
+    <g transform="translate(2 170)" font-size="17" font-weight="700">
+      <g><rect width="160" height="44" rx="22" fill="#0D2635" stroke="#22D3EE" stroke-opacity=".5"/><text x="80" y="28" text-anchor="middle" fill="#A5F3FC">Evidence-first</text></g>
+      <g transform="translate(174)"><rect width="158" height="44" rx="22" fill="#10253A" stroke="#38BDF8" stroke-opacity=".5"/><text x="79" y="28" text-anchor="middle" fill="#BAE6FD">Multi-format</text></g>
+      <g transform="translate(346)"><rect width="174" height="44" rx="22" fill="#171C3C" stroke="#6366F1" stroke-opacity=".55"/><text x="87" y="28" text-anchor="middle" fill="#C7D2FE">Reconstruction</text></g>
+      <g transform="translate(534)"><rect width="178" height="44" rx="22" fill="#0D2B2B" stroke="#34D399" stroke-opacity=".5"/><text x="89" y="28" text-anchor="middle" fill="#A7F3D0">Auditable QA</text></g>
+    </g>
+  </g>
+  <g transform="translate(994 40)" fill="none" stroke="#22D3EE" stroke-opacity=".5" stroke-width="2">
+    <path d="M0 20h120M15 48h90M0 76h120"/>
+    <circle cx="12" cy="20" r="5" fill="#34D399" stroke="none"/>
+    <circle cx="108" cy="48" r="4" fill="#6366F1" stroke="none"/>
+    <circle cx="24" cy="76" r="4" fill="#38BDF8" stroke="none"/>
+  </g>
+</svg>

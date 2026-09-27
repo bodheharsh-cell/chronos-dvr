@@ -1,0 +1,169 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[dev]'
+          python -m pip check
+
+      - name: Pin reproducibility build tooling
+        if: matrix.python-version == '3.12'
+        run: |
+          python -m pip install 'build==1.5.0' 'setuptools==84.0.0' 'wheel==0.48.0'
+          python - <<'PY'
+          import importlib.metadata as metadata
+          assert metadata.version('build') == '1.5.0'
+          assert metadata.version('setuptools') == '84.0.0'
+          assert metadata.version('wheel') == '0.48.0'
+          PY
+
+      - name: Ruff
+        run: ruff check vidrensic tests scripts
+
+      - name: Compile all Python modules
+        run: python -m compileall -q vidrensic tests scripts
+
+      - name: Unit and synthetic tests
+        if: matrix.python-version != '3.12'
+        run: pytest
+
+      - name: Unit tests with coverage report
+        if: matrix.python-version == '3.12'
+        run: |
+          pytest --cov=vidrensic --cov-report=term-missing --cov-report=xml
+
+      - name: Overall and critical forensic coverage gate
+        if: matrix.python-version == '3.12'
+        run: python scripts/check_critical_coverage.py coverage.xml --overall 80
+
+      - name: Validate real-recorder corpus admission index
+        if: matrix.python-version == '3.12'
+        run: python scripts/validate_real_corpus_index.py
+
+      - name: Public validation corpus smoke test
+        if: matrix.python-version == '3.12'
+        run: |
+          vidrensic validate corpus validation_corpus/corpus.json --out validation-report.json
+          python -c "import json; r=json.load(open('validation-report.json')); assert r['status'] == 'PASS'"
+
+      - name: Profile WFS production vs reference branch-and-bound selector
+        if: matrix.python-version == '3.12'
+        run: |
+          python scripts/profile_wfs_solver.py --starts 5 --options 7 --out solver-profile.json
+          python -c "import json; r=json.load(open('solver-profile.json')); assert r['selection_equivalent'] is True"
+
+      - name: CLI smoke test
+        run: |
+          vidrensic --version
+          vidrensic doctor --json
+          vidrensic plugins list
+          vidrensic formats list
+
+      - name: Package import smoke test
+        run: python -c "import vidrensic; import vidrensic.crypto; import vidrensic.validation; print(vidrensic.__version__)"
+
+      - name: Build source and wheel distributions
+        if: matrix.python-version == '3.12'
+        run: |
+          export SOURCE_DATE_EPOCH="$(git show -s --format=%ct HEAD)"
+          export PYTHONHASHSEED=0
+          python -m build --no-isolation
+
+      - name: Verify byte-for-byte reproducible wheel
+        if: matrix.python-version == '3.12'
+        run: |
+          WHEEL="$(find dist -maxdepth 1 -type f -name '*.whl' -print -quit)"
+          test -n "$WHEEL"
+          python scripts/check_reproducible_wheel.py \
+            --out reproducible-wheel-report.json \
+            --reference-wheel "$WHEEL"
+          python -c "import json; r=json.load(open('reproducible-wheel-report.json')); assert r['reproducible'] is True"
+
+      - name: Validate distribution metadata
+        if: matrix.python-version == '3.12'
+        run: |
+          python -m pip install 'twine==7.0.0'
+          python -m twine check dist/*.whl dist/*.tar.gz
+
+      - name: Smoke test built wheel
+        if: matrix.python-version == '3.12'
+        run: |
+          python -m pip uninstall -y vidrensic
+          python -m pip install --force-reinstall dist/*.whl
+          python -m pip check
+          vidrensic --version
+          vidrensic validate corpus validation_corpus/corpus.json --out wheel-validation-report.json
+          python -c "from vidrensic.crypto import KeyMaterial; print(KeyMaterial(b'0' * 16).fingerprint_sha256[:8])"
+
+      - name: Smoke test release CycloneDX SBOM generation
+        if: matrix.python-version == '3.12'
+        run: |
+          python -m pip install 'cyclonedx-bom==7.3.1'
+          python -m venv .sbom-ci-env
+          .sbom-ci-env/bin/python -m pip install --upgrade pip
+          .sbom-ci-env/bin/python -m pip install dist/*.whl
+          .sbom-ci-env/bin/python -m pip check
+          .sbom-ci-env/bin/python -m pip freeze | \
+            cyclonedx-py requirements \
+              --pyproject pyproject.toml \
+              --mc-type library \
+              --spec-version 1.6 \
+              --output-reproducible \
+              --output-format JSON \
+              --output-file ci-sbom.cdx.json \
+              -
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          data = json.loads(Path('ci-sbom.cdx.json').read_text(encoding='utf-8'))
+          assert data.get('bomFormat') == 'CycloneDX'
+          assert data.get('specVersion') == '1.6'
+          names = {
+              str(item.get('name', '')).lower()
+              for item in data.get('components', [])
+              if isinstance(item, dict)
+          }
+          assert 'vidrensic' in names
+          PY
+
+      - name: Upload coverage and validation artifacts
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: qa-${{ github.sha }}
+          path: |
+            coverage.xml
+            validation-report.json
+            wheel-validation-report.json
+            solver-profile.json
+            ci-sbom.cdx.json
+            reproducible-wheel-report.json
+          if-no-files-found: error
+          retention-days: 14
