@@ -6,4 +6,4 @@ sqlalchemy>=2.0.0
 opencv-python-headless>=4.10.0
 reportlab>=4.2.0
 numpy>=1.26.0
-pillow>=10.4.0
+pillow>=12.3.0
